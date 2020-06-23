@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">pop3server</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">电子邮箱账号</string>
+    <string name="prompt_password">邮箱密码</string>
+    <string name="action_sign_in">登录</string>
+    <string name="action_sign_in_short">登录</string>
+    <string name="welcome">欢迎</string>
+    <string name="invalid_username">不是一个有效的用户名</string>
+    <string name="invalid_password">密码必须大于5位</string>
+    <string name="login_failed">"登录失败</string>
+    <string name="prompt_pop_server">POP3服务器</string>
+    <string name="mail_topic">邮件主题</string>
+</resources>
