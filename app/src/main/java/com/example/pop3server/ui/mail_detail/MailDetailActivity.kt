@@ -8,6 +8,7 @@ import android.view.View.VISIBLE
 import android.widget.Toast
 import com.example.pop3server.R
 import com.example.pop3server.data.MailHolder
+import com.example.pop3server.data.parser.MailParser
 import com.example.pop3server.ui.base.BaseActivity
 import com.kingtous.remote_unlock.FileTransferTool.FileBrowserActivity
 import com.sun.mail.util.BASE64DecoderStream
@@ -104,7 +105,7 @@ class MailDetailActivity : BaseActivity() {
     fun parseBodyPart(bodyPart: BodyPart) {
         if (bodyPart.contentType != null && bodyPart.content is BASE64DecoderStream) {
             // 附件为二进制
-            val fileName = getFileName(bodyPart)
+            val fileName = MailParser.parseCharset(getFileName(bodyPart))
             downloadCopy(
                 (bodyPart.content as BASE64DecoderStream),
                 mailLocalPath + File.separator + fileName

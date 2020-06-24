@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.*
 import java.util.regex.Pattern
+import javax.mail.Part
 import javax.mail.Session
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
@@ -129,11 +130,42 @@ class MailParser {
             // 判断是否有附件
             var isContainAttachment = false
             if (body is MimeMultipart) {
-                if (body.contentType != null && body.contentType.startsWith("multipart/mixed")) {
-                    isContainAttachment = true
+//                if (body.contentType != null && body.contentType.startsWith("multipart/mixed")) {
+//                    isContainAttachment = true
+//                }
+                for (index in 0 until body.count) {
+                    val deposition = body.getBodyPart(index).disposition
+                    if (deposition != null && deposition == Part.ATTACHMENT || deposition == Part.INLINE) {
+                        isContainAttachment = true
+                        break
+                    }
                 }
             }
             return MailDetail(from, to, subject, date, isContainAttachment, body)
+        }
+
+        // 一般用于附件名称的解码
+        fun parseCharset(fileName: String): String {
+            var newFileName =
+                fileName.removeSuffix("\"; charset=\"utf-8")//最后不要"因为在getFileName时会自动去除尾部的"
+            var matcher = utf8matcher.matcher(newFileName)
+            while (matcher.find()) {
+                try {
+                    val originStr = matcher.group()
+                    var replaceStr =
+                        originStr.substring(utf8Prefix.length, originStr.length - 2)
+                            .removePrefix(utf8Prefix)
+                            .removePrefix(utf8Prefix.toLowerCase())
+                    replaceStr = String(Base64.decode(replaceStr, Base64.DEFAULT))
+                    newFileName = newFileName.replace(originStr, replaceStr)
+                    matcher = utf8matcher.matcher(newFileName)
+                } catch (e: IllegalArgumentException) {
+                    e.printStackTrace()
+                } catch (e: IllegalStateException) {
+                    e.printStackTrace()
+                }
+            }
+            return newFileName
         }
 
         public val MIME_MapTable = arrayOf(

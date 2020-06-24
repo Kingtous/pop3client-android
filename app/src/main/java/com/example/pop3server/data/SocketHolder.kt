@@ -43,7 +43,7 @@ class SocketHolder {
             writer?.let {
                 try {
                     // 追加 \r\n为标识符
-                    val dataAppend = data + "\n"
+                    val dataAppend = data + "\r\n"
                     it.write(dataAppend.toByteArray(StandardCharsets.UTF_8))
                     it.flush()
                     return@send 0
