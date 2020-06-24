@@ -2,18 +2,20 @@ package com.example.pop3server.ui.index
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pop3server.R
+import com.example.pop3server.data.MailHolder
 import com.example.pop3server.data.SocketHolder
 import com.example.pop3server.data.model.Mail
 import com.example.pop3server.data.model.Pop3Commands
 import com.example.pop3server.data.parser.MailParser
+import com.example.pop3server.ui.base.BaseActivity
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener
 import kotlinx.android.synthetic.main.activity_index.*
@@ -21,20 +23,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.lang.Integer.parseInt
-import kotlin.system.exitProcess
 
 
-class IndexActivity : AppCompatActivity() {
+class IndexActivity : BaseActivity() {
 
     private var titlePrefix: CharSequence? = null
     private var mailList: MutableList<Mail> = ArrayList()
     private lateinit var maillistAdapter: MailListAdapter
+    private var isLoading = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_index)
-        var title = "邮件列表"
+        var title = "邮件"
         setTitle(title)
         intent.getStringExtra("username").let {
             title += "-$it"
@@ -42,6 +44,10 @@ class IndexActivity : AppCompatActivity() {
         }
         initMailListView()
         fetchData()
+    }
+
+    override fun loadLayout(): Int {
+        return R.layout.activity_index
     }
 
     private fun initMailListView() {
@@ -83,7 +89,16 @@ class IndexActivity : AppCompatActivity() {
                                 title = "$titlePrefix($totalNum)"
                                 mailList.removeAt(menuBridge.adapterPosition)
                                 maillistAdapter.notifyItemRemoved(menuBridge.adapterPosition)
-
+                                // 检查是否下载了附件
+                                val mailLocalPath =
+                                    filesDir.path + File.separator + MailHolder.loginUser + File.separator + Base64.encode(
+                                        mailList[menuBridge.adapterPosition].detail.from.toByteArray(),
+                                        Base64.URL_SAFE
+                                    )
+                                val file = File(mailLocalPath)
+                                if (file.exists()) {
+                                    file.delete()
+                                }
                             }
                         } else {
                             withContext(Dispatchers.Main) {
@@ -111,6 +126,10 @@ class IndexActivity : AppCompatActivity() {
     private val perRequest = 10
 
     fun fetchData() {
+        if (isLoading) {
+            return
+        }
+        isLoading = true
 //        Toast.makeText(this, "正在加载邮件", Toast.LENGTH_SHORT).show()
         if (nextLoadIndex == 0) {
             return
@@ -159,6 +178,7 @@ class IndexActivity : AppCompatActivity() {
             if (nextLoadIndex < 0) {
                 nextLoadIndex = 0
             }
+            isLoading = false
         }
     }
 
@@ -177,17 +197,12 @@ class IndexActivity : AppCompatActivity() {
                 if (resp.startsWith("+OK")) {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@IndexActivity, "成功断开连接", Toast.LENGTH_SHORT).show()
-                        SocketHolder.reader = null
-                        SocketHolder.writer = null
-                        SocketHolder.socket = null
-                        finish()
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@IndexActivity, "断开失败，请重试", Toast.LENGTH_SHORT).show()
-                        firstTime = 0
                     }
                 }
+                SocketHolder.reader = null
+                SocketHolder.writer = null
+                SocketHolder.socket = null
+                finish()
             }
         }
     }

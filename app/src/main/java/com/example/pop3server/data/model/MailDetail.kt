@@ -6,5 +6,5 @@ data class MailDetail(
     val subject: String,
     val date: String,
     val containAttachment: Boolean,
-    val body: Any
+    val body: Any?
 )

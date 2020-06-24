@@ -1,6 +1,7 @@
 package com.example.pop3server.ui.login
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -10,22 +11,21 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.example.pop3server.R
 import com.example.pop3server.data.MailHolder
+import com.example.pop3server.ui.base.BaseActivity
 import com.example.pop3server.ui.index.IndexActivity
 import kotlinx.android.synthetic.main.activity_login.*
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
 
     private lateinit var loginViewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_login)
         title = "POP3邮件系统-Kingtous"
 
         loginViewModel = ViewModelProviders.of(this, LoginViewModelFactory())
@@ -99,9 +99,15 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        MailHolder.sp = getSharedPreferences(packageName, Context.MODE_PRIVATE)
+
         username.setText("t.jin@kingtous.cn")
         pop_server.setText("pop.ym.163.com")
         password.setText("jintao!123")
+    }
+
+    override fun loadLayout(): Int {
+        return R.layout.activity_login
     }
 
     private fun updateUiWithUser(model: LoggedInUserView) {

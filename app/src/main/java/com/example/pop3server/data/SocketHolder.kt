@@ -1,14 +1,20 @@
 package com.example.pop3server.data
 
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.net.Socket
 import java.nio.charset.StandardCharsets
 
 /// Socket Hold类，用于保存已连接的Socket
 class SocketHolder {
     companion object {
+        @Volatile
         var writer: BufferedOutputStream? = null
+        @Volatile
         var reader: BufferedInputStream? = null
+        @Volatile
         var socket: Socket? = null
         val buff = ByteArray(1024)
 
@@ -71,15 +77,25 @@ class SocketHolder {
                 var ch = it.read(buff, 0, 1024)
                 val byteArrayOutputStream = ByteArrayOutputStream()
                 while (ch != -1) {
-                    byteArrayOutputStream.write(buff, 0, ch)
                     if (it.available() > 0 || !(ch >= 3 &&buff[ch - 1] == '\n'.toByte() && buff[ch - 2] == '\r'.toByte()
                                 && buff[ch - 3] == '.'.toByte())) {
+                        // 此时有数据缓冲，或者末尾不是.\r\n，则继续接收
+                        byteArrayOutputStream.write(buff, 0, ch)
                         ch = it.read(buff, 0, 1024)
-                    } else {
+                        continue
+                    }
+                    if (it.available() == 0 && (ch >= 3 && buff[ch - 1] == '\n'.toByte() && buff[ch - 2] == '\r'.toByte()
+                                && buff[ch - 3] == '.'.toByte())
+                    ) {
+                        // 如果此时无数据发送至手机端，且结尾为.\r\n，则接受完毕，break
+                        byteArrayOutputStream.write(buff, 0, ch - 3)
                         break
                     }
                 }
-                return@receiveEmail String(byteArrayOutputStream.toByteArray())
+                var mailRaw = String(byteArrayOutputStream.toByteArray())
+                mailRaw = mailRaw.substring(mailRaw.indexOf("\r\n") + 2)
+
+                return@receiveEmail mailRaw
             }
             return "-ERR"
         }
