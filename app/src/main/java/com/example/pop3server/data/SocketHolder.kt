@@ -79,6 +79,9 @@ class SocketHolder {
                 while (ch != -1) {
                     if (it.available() > 0 || !(ch >= 3 &&buff[ch - 1] == '\n'.toByte() && buff[ch - 2] == '\r'.toByte()
                                 && buff[ch - 3] == '.'.toByte())) {
+                        if (buff[0] == '-'.toByte() && buff[1] == 'E'.toByte() && buff[2] == 'R'.toByte() && buff[3] == 'R'.toByte()) {
+                            return@receiveEmail "-ERR"
+                        }
                         // 此时有数据缓冲，或者末尾不是.\r\n，则继续接收
                         byteArrayOutputStream.write(buff, 0, ch)
                         ch = it.read(buff, 0, 1024)

@@ -101,9 +101,9 @@ class LoginActivity : BaseActivity() {
 
         MailHolder.sp = getSharedPreferences(packageName, Context.MODE_PRIVATE)
 
-        username.setText("t.jin@kingtous.cn")
-        pop_server.setText("pop.ym.163.com")
-        password.setText("jintao!123")
+        username.setText("kingtous@qq.com")
+        pop_server.setText("pop.qq.com")
+        password.setText("skcugjmouxtoicef")
     }
 
     override fun loadLayout(): Int {

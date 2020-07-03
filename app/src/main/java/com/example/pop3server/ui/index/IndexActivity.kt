@@ -161,9 +161,11 @@ class IndexActivity : BaseActivity() {
                 }
                 SocketHolder.send("${Pop3Commands.RETR} $index")
                 val resp = SocketHolder.receiveEmail()
-                withContext(Dispatchers.Main) {
-                    mailList.add(Mail(index, MailParser.parseEmail(resp)))
-                    maillistAdapter.notifyItemInserted(mailList.size - 1)
+                if (resp != "-ERR") {
+                    withContext(Dispatchers.Main) {
+                        mailList.add(Mail(index, MailParser.parseEmail(resp)))
+                        maillistAdapter.notifyItemInserted(mailList.size - 1)
+                    }
                 }
             }
             // enable listener
