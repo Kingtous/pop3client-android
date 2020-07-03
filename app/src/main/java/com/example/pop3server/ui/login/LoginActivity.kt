@@ -54,12 +54,12 @@ class LoginActivity : BaseActivity() {
             }
             if (loginResult.success != null) {
                 updateUiWithUser(loginResult.success)
+                setResult(Activity.RESULT_OK)
+                val intent = Intent(this, IndexActivity::class.java)
+                MailHolder.loginUser = username.text.toString()
+                intent.putExtra("username", MailHolder.loginUser)
+                startActivity(intent)
             }
-            setResult(Activity.RESULT_OK)
-            val intent = Intent(this, IndexActivity::class.java)
-            MailHolder.loginUser = username.text.toString()
-            intent.putExtra("username", MailHolder.loginUser)
-            startActivity(intent)
         })
 
         username.afterTextChanged {

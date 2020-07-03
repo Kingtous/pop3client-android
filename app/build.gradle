@@ -45,4 +45,7 @@ dependencies {
     compile 'com.sun.mail:android-activation:1.6.2'
     compile 'com.yanzhenjie:recyclerview-swipe:1.1.4'
     implementation 'com.airbnb.android:lottie:3.4.1'
+
+    compile 'com.tencent.bugly:crashreport:latest.release' //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如2.1.9
+
 }

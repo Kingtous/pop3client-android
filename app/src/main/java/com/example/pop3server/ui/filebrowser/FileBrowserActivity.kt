@@ -11,7 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.pop3server.BuildConfig
+import com.airbnb.lottie.BuildConfig
 import com.example.pop3server.R
 import com.example.pop3server.data.MailHolder
 import com.example.pop3server.data.parser.MailParser.Companion.MIME_MapTable
